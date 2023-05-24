@@ -38,6 +38,7 @@ final class ChatInputInteractionEventHandler implements EventHandler<ChatInputIn
                     command.getCommandName(),
                     member.orElseThrow().getDisplayName()))
         .flatMap(c -> c.handle(event))
+        .doOnError(t -> LOGGER.error("Command failed.", t))
         .onErrorComplete()
         .then();
   }

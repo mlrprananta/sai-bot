@@ -1,4 +1,4 @@
-package com.example.myproject;
+package com.mlrp.saibot;
 
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;

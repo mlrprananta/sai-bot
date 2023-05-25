@@ -1,6 +1,6 @@
 package com.mlrp.saibot.handlers;
 
-import com.mlrp.saibot.commands.Command;
+import com.mlrp.saibot.commands.SlashCommand;
 import discord4j.core.event.domain.interaction.ChatInputInteractionEvent;
 import discord4j.core.object.entity.Member;
 import java.util.List;
@@ -15,9 +15,9 @@ import reactor.core.publisher.Mono;
 final class ChatInputInteractionEventHandler implements EventHandler<ChatInputInteractionEvent> {
   private static final Logger LOGGER =
       LoggerFactory.getLogger(ChatInputInteractionEventHandler.class);
-  private final List<Command<ChatInputInteractionEvent>> commands;
+  private final List<SlashCommand> commands;
 
-  public ChatInputInteractionEventHandler(List<Command<ChatInputInteractionEvent>> commands) {
+  public ChatInputInteractionEventHandler(List<SlashCommand> commands) {
     this.commands = commands;
   }
 

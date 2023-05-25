@@ -6,7 +6,7 @@ import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
 @Component
-public class PingCommand implements Command<ChatInputInteractionEvent> {
+public class PingCommand extends SlashCommand {
   @Override
   public String getCommandName() {
     return "ping";

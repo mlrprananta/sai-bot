@@ -21,7 +21,7 @@ import org.springframework.web.util.UriBuilder;
 import reactor.core.publisher.Mono;
 
 @Component
-public class WeatherCommand implements Command<ChatInputInteractionEvent> {
+public class WeatherCommand extends SlashCommand {
   private static final String LOCATION_OPTION = "location";
   private static final String UNITS_OPTION = "units";
   private final String key;

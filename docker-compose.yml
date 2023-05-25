@@ -1,0 +1,7 @@
+services:
+  saibot:
+    build: .
+    environment:
+      TOKEN: ${TOKEN}
+      WEATHER_API_KEY: ${WEATHER_API_KEY}
+

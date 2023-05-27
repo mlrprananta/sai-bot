@@ -32,10 +32,15 @@ public class WeatherCommand extends SlashCommand {
   }
 
   @Override
+  public String getDescription() {
+    return "Get the weather for a location!";
+  }
+
+  @Override
   public ApplicationCommandRequest getCommandRequest() {
     return ApplicationCommandRequest.builder()
         .name(getCommandName())
-        .description("Get the weather for a location!")
+        .description(getDescription())
         .addOption(
             ApplicationCommandOptionData.builder()
                 .name(LOCATION_OPTION)

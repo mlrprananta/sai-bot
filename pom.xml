@@ -11,7 +11,7 @@
 	</parent>
 
 	<groupId>com.mlrp</groupId>
-	<artifactId>sai-bot</artifactId>
+	<artifactId>saibot</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 
 	<name>sai-bot</name>

@@ -3,7 +3,6 @@ package com.mlrp.saibot.commands;
 import discord4j.core.event.domain.interaction.ChatInputInteractionEvent;
 import discord4j.core.spec.EmbedCreateFields;
 import discord4j.core.spec.EmbedCreateSpec;
-import discord4j.discordjson.json.ApplicationCommandRequest;
 import java.time.Instant;
 import java.util.List;
 import org.springframework.stereotype.Component;
@@ -23,21 +22,16 @@ public class HelpCommand extends SlashCommand {
   }
 
   @Override
-  public ApplicationCommandRequest getCommandRequest() {
-    return ApplicationCommandRequest.builder()
-        .name(getCommandName())
-        .description("Do you need help?")
-        .build();
+  public String getDescription() {
+    return "Do you need help?";
   }
 
   @Override
   public Mono<Void> handle(ChatInputInteractionEvent event) {
-    return event
-        .reply()
-        .withEmbeds(toEmbedCreateSpec(commands.stream().map(Command::getCommandRequest).toList()));
+    return event.reply().withEmbeds(toEmbedCreateSpec(commands));
   }
 
-  private EmbedCreateSpec toEmbedCreateSpec(List<ApplicationCommandRequest> list) {
+  private EmbedCreateSpec toEmbedCreateSpec(List<SlashCommand> list) {
     return EmbedCreateSpec.builder()
         .title("Available Commands")
         .addAllFields(
@@ -45,7 +39,7 @@ public class HelpCommand extends SlashCommand {
                 .map(
                     request ->
                         EmbedCreateFields.Field.of(
-                            request.name(), request.description().get(), false))
+                            request.getCommandName(), request.getDescription(), false))
                 .toList())
         .timestamp(Instant.now())
         .build();

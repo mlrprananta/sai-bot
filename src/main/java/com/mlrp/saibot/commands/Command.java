@@ -1,7 +1,6 @@
 package com.mlrp.saibot.commands;
 
 import discord4j.core.event.domain.Event;
-import discord4j.discordjson.json.ApplicationCommandRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import reactor.core.publisher.Mono;
@@ -11,7 +10,7 @@ interface Command<E extends Event> {
 
   String getCommandName();
 
-  ApplicationCommandRequest getCommandRequest();
+  String getDescription();
 
   Mono<Void> handle(E event);
 }

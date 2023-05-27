@@ -9,6 +9,7 @@ import discord4j.rest.RestClient;
 import discord4j.rest.request.RouteMatcher;
 import discord4j.rest.response.ResponseFunction;
 import io.netty.channel.unix.Errors;
+import java.time.Clock;
 import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,6 +41,11 @@ public class Config {
         .setAwaitConnections(true)
         .login()
         .block();
+  }
+
+  @Bean
+  public Clock clock() {
+    return Clock.systemUTC();
   }
 
   @Bean

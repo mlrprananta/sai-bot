@@ -29,8 +29,8 @@ jobs:
         cache: maven
     - name: Build with Maven
       env:
-        WEATHER_API_KEY: ${{secrets.WEATHER_API_KEY}}
-        TOKEN: ${{secrets.TOKEN}}
+        OWM_API_KEY: ${{secrets.OWM_API_KEY}}
+        BOT_TOKEN: ${{secrets.BOT_TOKEN}}
       run: mvn -B package --file pom.xml
 
     # Optional: Uploads the full dependency graph to GitHub to improve the quality of Dependabot alerts this repository can receive

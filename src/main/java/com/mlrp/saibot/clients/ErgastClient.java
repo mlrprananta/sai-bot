@@ -1,13 +1,9 @@
 package com.mlrp.saibot.clients;
 
-import static java.util.function.Function.identity;
-
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.time.Instant;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Stream;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -45,28 +41,13 @@ public class ErgastClient {
       @JsonProperty("Circuit") Circuit circuit,
       String date,
       String time,
-      @JsonProperty("FirstPractice") SessionTime freePractice1,
-      @JsonProperty("SecondPractice") SessionTime freePractice2,
-      @JsonProperty("ThirdPractice") Optional<SessionTime> freePractice3,
-      @JsonProperty("Sprint") Optional<SessionTime> sprint,
-      @JsonProperty("Qualifying") SessionTime qualifying) {
+      @JsonProperty("FirstPractice") Session freePractice1,
+      @JsonProperty("SecondPractice") Session freePractice2,
+      @JsonProperty("ThirdPractice") Optional<Session> freePractice3,
+      @JsonProperty("Sprint") Optional<Session> sprint,
+      @JsonProperty("Qualifying") Session qualifying) {
     public Instant getInstant() {
       return Instant.parse(date + "T" + time);
-    }
-
-    public List<Session> getSessions() {
-      return Stream.of(
-              Stream.of(
-                  new Session("Free Practice 1", freePractice1.getInstant()),
-                  new Session("Free Practice 2", freePractice2.getInstant()),
-                  new Session("Qualifying", qualifying.getInstant()),
-                  new Session("Grand Prix", getInstant())),
-              freePractice3.stream()
-                  .map(session -> new Session("Free Practice 3", session.getInstant())),
-              sprint.stream().map(session -> new Session("Sprint", session.getInstant())))
-          .flatMap(identity())
-          .sorted(Comparator.comparing(Session::instant, Instant::compareTo))
-          .toList();
     }
   }
 
@@ -82,10 +63,8 @@ public class ErgastClient {
       String locality,
       String country) {}
 
-  public record Session(String name, Instant instant) {}
-
-  public record SessionTime(String date, String time) {
-    Instant getInstant() {
+  public record Session(String date, String time) {
+    public Instant getInstant() {
       return Instant.parse(date + "T" + time);
     }
   }

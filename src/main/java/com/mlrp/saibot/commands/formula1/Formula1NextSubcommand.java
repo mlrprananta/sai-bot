@@ -1,26 +1,30 @@
-package com.mlrp.saibot.commands.formula1.subcommands;
+package com.mlrp.saibot.commands.formula1;
+
+import static com.mlrp.saibot.services.Formula1ScheduleService.getSessions;
 
 import com.mlrp.saibot.clients.ErgastClient;
 import com.mlrp.saibot.commands.Subcommand;
-import com.mlrp.saibot.commands.formula1.Formula1Command;
-import com.mlrp.saibot.services.Formula1SessionsService;
+import com.mlrp.saibot.services.Formula1ScheduleService;
 import discord4j.core.event.domain.interaction.ChatInputInteractionEvent;
 import discord4j.core.object.component.ActionRow;
 import discord4j.core.object.component.Button;
 import discord4j.core.spec.EmbedCreateFields.Field;
 import discord4j.core.spec.EmbedCreateSpec;
 import discord4j.rest.util.Color;
+import java.time.Clock;
 import java.time.Instant;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
 @Component
-public class NextSubcommand extends Subcommand<Formula1Command> {
+public class Formula1NextSubcommand extends Subcommand<Formula1Command> {
   public static final Color COLOR = Color.of(225, 6, 0);
-  private final Formula1SessionsService sessionsService;
+  private final Formula1ScheduleService sessionsService;
+  private final Clock clock;
 
-  public NextSubcommand(Formula1SessionsService sessionsService) {
+  public Formula1NextSubcommand(Formula1ScheduleService sessionsService, Clock clock) {
     this.sessionsService = sessionsService;
+    this.clock = clock;
   }
 
   @Override
@@ -41,25 +45,24 @@ public class NextSubcommand extends Subcommand<Formula1Command> {
             race ->
                 event
                     .reply()
-                    .withEmbeds(toEmbedCreateSpec(race))
+                    .withEmbeds(toEmbedCreateSpec(race, clock.instant()))
                     .withComponents(
                         ActionRow.of(Button.link("https://f1tv.formula1.com/", "Watch on F1TV"))));
   }
 
-  private static EmbedCreateSpec toEmbedCreateSpec(ErgastClient.Race race) {
+  private static EmbedCreateSpec toEmbedCreateSpec(ErgastClient.Race race, Instant now) {
     return EmbedCreateSpec.create()
         .withTitle(race.raceName())
         .withDescription(race.circuit().circuitName())
-        .withThumbnail("https://upload.wikimedia.org/wikipedia/commons/f/f2/New_era_F1_logo.png")
         .withColor(COLOR)
         .withFields(
-            race.getSessions().stream()
-                .filter(session -> session.instant().isAfter(Instant.now()))
+            getSessions(race).stream()
+                .filter(session -> session.instant().isAfter(now))
                 .map(
                     session ->
                         Field.of(
                             session.name(),
-                            "<t:%s>".formatted(session.instant().getEpochSecond()),
+                            "<t:%s:R>".formatted(session.instant().getEpochSecond()),
                             false))
                 .toList());
   }

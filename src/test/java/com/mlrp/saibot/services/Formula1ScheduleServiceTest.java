@@ -20,7 +20,7 @@ import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 @SpringBootTest(classes = JacksonAutoConfiguration.class)
-class Formula1SessionsServiceTest {
+class Formula1ScheduleServiceTest {
   @Autowired private ObjectMapper mapper;
 
   @Test
@@ -31,7 +31,7 @@ class Formula1SessionsServiceTest {
     Race expectedRace = response.data().raceTable().races().get(5);
     Clock clock = Clock.fixed(expectedRace.getInstant().minus(1, ChronoUnit.DAYS), UTC);
     when(client.fetchRaceTable()).thenReturn(Mono.just(response.data().raceTable()));
-    new Formula1SessionsService(client, clock)
+    new Formula1ScheduleService(client, clock)
         .getCurrentRace()
         .as(StepVerifier::create)
         .expectNext(expectedRace)

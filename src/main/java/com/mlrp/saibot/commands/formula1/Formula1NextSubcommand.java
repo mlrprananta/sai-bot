@@ -2,7 +2,7 @@ package com.mlrp.saibot.commands.formula1;
 
 import static com.mlrp.saibot.services.Formula1ScheduleService.getSessions;
 
-import com.mlrp.saibot.clients.ErgastClient;
+import com.mlrp.saibot.clients.domain.ergast.Race;
 import com.mlrp.saibot.commands.Subcommand;
 import com.mlrp.saibot.services.Formula1ScheduleService;
 import discord4j.core.event.domain.interaction.ChatInputInteractionEvent;
@@ -50,7 +50,7 @@ public class Formula1NextSubcommand extends Subcommand<Formula1Command> {
                         ActionRow.of(Button.link("https://f1tv.formula1.com/", "Watch on F1TV"))));
   }
 
-  private static EmbedCreateSpec toEmbedCreateSpec(ErgastClient.Race race, Instant now) {
+  private static EmbedCreateSpec toEmbedCreateSpec(Race race, Instant now) {
     return EmbedCreateSpec.create()
         .withTitle(race.raceName())
         .withDescription(race.circuit().circuitName())

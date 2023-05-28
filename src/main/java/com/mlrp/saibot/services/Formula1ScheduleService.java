@@ -3,8 +3,8 @@ package com.mlrp.saibot.services;
 import static java.util.function.Function.identity;
 
 import com.mlrp.saibot.clients.ErgastClient;
-import com.mlrp.saibot.clients.ErgastClient.Race;
-import com.mlrp.saibot.clients.ErgastClient.RaceTable;
+import com.mlrp.saibot.clients.domain.ergast.Race;
+import com.mlrp.saibot.clients.domain.ergast.RaceTable;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.Comparator;
@@ -37,6 +37,16 @@ public class Formula1ScheduleService {
                     .next());
   }
 
+  public Mono<Session> getCurrentSession() {
+    return Mono.fromSupplier(clock::instant)
+        .flatMap(
+            now ->
+                getCurrentRace()
+                    .flatMapIterable(Formula1ScheduleService::getSessions)
+                    .filter(r -> r.instant().isAfter(now))
+                    .next());
+  }
+
   public static List<Session> getSessions(Race race) {
     return Stream.of(
             Stream.of(
@@ -44,9 +54,11 @@ public class Formula1ScheduleService {
                 new Session("Free Practice 2", race.freePractice2().getInstant()),
                 new Session("Qualifying", race.qualifying().getInstant()),
                 new Session("Grand Prix", race.getInstant())),
-            race.freePractice3().stream()
-                .map(session -> new Session("Free Practice 3", session.getInstant())),
-            race.sprint().stream().map(session -> new Session("Sprint", session.getInstant())))
+            race
+                .freePractice3()
+                .map(session -> new Session("Free Practice 3", session.getInstant()))
+                .stream(),
+            race.sprint().map(session -> new Session("Sprint", session.getInstant())).stream())
         .flatMap(identity())
         .sorted(Comparator.comparing(Session::instant, Instant::compareTo))
         .toList();

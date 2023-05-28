@@ -6,8 +6,8 @@ import static org.mockito.Mockito.when;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mlrp.saibot.clients.ErgastClient;
-import com.mlrp.saibot.clients.ErgastClient.Race;
-import com.mlrp.saibot.clients.ErgastClient.Response;
+import com.mlrp.saibot.clients.domain.ergast.Race;
+import com.mlrp.saibot.clients.domain.ergast.Response;
 import java.io.File;
 import java.io.IOException;
 import java.time.Clock;
@@ -28,9 +28,9 @@ class Formula1ScheduleServiceTest {
     ErgastClient client = mock(ErgastClient.class);
     Response response =
         mapper.readValue(new File("src/test/resources/response.json"), Response.class);
-    Race expectedRace = response.data().raceTable().races().get(5);
+    Race expectedRace = response.MRData().raceTable().races().get(5);
     Clock clock = Clock.fixed(expectedRace.getInstant().minus(1, ChronoUnit.DAYS), UTC);
-    when(client.fetchRaceTable()).thenReturn(Mono.just(response.data().raceTable()));
+    when(client.fetchRaceTable()).thenReturn(Mono.just(response.MRData().raceTable()));
     new Formula1ScheduleService(client, clock)
         .getCurrentRace()
         .as(StepVerifier::create)

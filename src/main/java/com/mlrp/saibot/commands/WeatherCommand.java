@@ -3,7 +3,8 @@ package com.mlrp.saibot.commands;
 import static discord4j.core.object.command.ApplicationCommandOption.Type.STRING;
 
 import com.mlrp.saibot.clients.OWMClient;
-import com.mlrp.saibot.clients.OWMClient.Response;
+import com.mlrp.saibot.clients.domain.owm.ResponseWeather;
+import com.mlrp.saibot.clients.domain.owm.Summary;
 import discord4j.core.event.domain.interaction.ChatInputInteractionEvent;
 import discord4j.core.object.command.ApplicationCommandInteractionOption;
 import discord4j.core.object.command.ApplicationCommandInteractionOptionValue;
@@ -61,14 +62,14 @@ public class WeatherCommand extends SlashCommand {
         .onErrorResume(__ -> event.reply("No weather data found!"));
   }
 
-  private static EmbedCreateSpec toEmbedCreateSpec(Response response) {
-    OWMClient.Summary summary = response.summaries().stream().findFirst().orElseThrow();
+  private static EmbedCreateSpec toEmbedCreateSpec(ResponseWeather responseWeather) {
+    Summary summary = responseWeather.summaries().stream().findFirst().orElseThrow();
     return EmbedCreateSpec.builder()
         .color(Color.of(234, 110, 75))
-        .title("Weather in " + response.name())
+        .title("Weather in " + responseWeather.name())
         .thumbnail("http://openweathermap.org/img/wn/" + summary.icon() + "@2x.png")
         .description(StringUtils.capitalize(summary.description()))
-        .addField("Temperature", response.temperatureData().temp() + "°C", false)
+        .addField("Temperature", responseWeather.temperatureData().temp() + "°C", false)
         .footer("Powered by OpenWeatherMap", "")
         .build();
   }

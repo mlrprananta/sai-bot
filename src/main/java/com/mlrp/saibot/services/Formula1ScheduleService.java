@@ -39,12 +39,12 @@ public class Formula1ScheduleService {
 
   public Mono<Session> getCurrentSession() {
     return Mono.fromSupplier(clock::instant)
-            .flatMap(
-                    now ->
-                            getCurrentRace()
-                                    .flatMapIterable(Formula1ScheduleService::getSessions)
-                                    .filter(r -> r.instant().isAfter(now))
-                                    .next());
+        .flatMap(
+            now ->
+                getCurrentRace()
+                    .flatMapIterable(Formula1ScheduleService::getSessions)
+                    .filter(r -> r.instant().isAfter(now))
+                    .next());
   }
 
   public static List<Session> getSessions(Race race) {

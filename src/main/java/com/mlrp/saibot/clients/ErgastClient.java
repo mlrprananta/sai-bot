@@ -25,13 +25,11 @@ public class ErgastClient {
         .cache();
   }
 
-  public Mono<RaceTable> fetchQualifyingResult() {
+  public Mono<Response> fetchLastQualifyingResult() {
     return client
         .get()
-        .uri(uriBuilder -> uriBuilder.path("/current.json").build())
+        .uri(uriBuilder -> uriBuilder.path("current/last/qualifying.json").build())
         .retrieve()
-        .bodyToMono(Response.class)
-        .mapNotNull(r -> r.MRData().raceTable())
-        .cache();
+        .bodyToMono(Response.class);
   }
 }

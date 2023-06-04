@@ -1,39 +1,39 @@
 package com.mlrp.saibot.commands;
 
+import static discord4j.core.object.command.ApplicationCommandOption.Type.SUB_COMMAND_GROUP;
 import static java.util.function.UnaryOperator.identity;
 
 import discord4j.core.event.domain.interaction.ChatInputInteractionEvent;
 import discord4j.core.object.command.ApplicationCommandInteractionOption;
-import discord4j.discordjson.json.ApplicationCommandRequest;
+import discord4j.discordjson.json.ApplicationCommandOptionData;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-public abstract class SlashCommand extends AbstractCommand {
-  protected final Map<String, Subcommand<?>> subcommands;
+public abstract class SubcommandGroup<P extends AbstractCommand> extends Subcommand<P> {
+  private final Map<String, Subcommand<?>> subcommands;
 
-  public SlashCommand() {
-    this.subcommands = Map.of();
-  }
-
-  public <T extends AbstractCommand> SlashCommand(List<Subcommand<T>> subcommands) {
+  public <T extends AbstractCommand> SubcommandGroup(List<Subcommand<T>> subcommands) {
     this.subcommands =
-        subcommands.stream().collect(Collectors.toMap(Subcommand::getCommandName, identity()));
+        subcommands.stream().collect(Collectors.toMap(Command::getCommandName, identity()));
   }
 
-  public ApplicationCommandRequest getCommandRequest() {
-    return ApplicationCommandRequest.builder()
+  @Override
+  public ApplicationCommandOptionData getCommandOptionData() {
+    return ApplicationCommandOptionData.builder()
         .name(getCommandName())
         .description(getDescription())
+        .type(SUB_COMMAND_GROUP.getValue())
         .addAllOptions(subcommands.values().stream().map(Subcommand::getCommandOptionData).toList())
         .build();
   }
 
   @Override
   public Mono<Void> handle(ChatInputInteractionEvent event) {
-    return Flux.fromIterable(event.getOptions())
+    return Flux.fromStream(
+            event.getOptions().stream().flatMap(option -> option.getOptions().stream()))
         .map(ApplicationCommandInteractionOption::getName)
         .singleOrEmpty()
         .filter(subcommands::containsKey)

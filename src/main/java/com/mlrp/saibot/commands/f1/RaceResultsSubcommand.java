@@ -1,10 +1,12 @@
 package com.mlrp.saibot.commands.f1;
 
+import static com.mlrp.saibot.commands.f1.F1Command.COLOR;
+
 import com.mlrp.saibot.clients.domain.ergast.Result;
 import com.mlrp.saibot.clients.domain.ergast.Time;
 import com.mlrp.saibot.commands.Subcommand;
 import com.mlrp.saibot.services.f1.ResultsService;
-import com.mlrp.saibot.services.f1.ResultsService.RaceResults;
+import com.mlrp.saibot.services.f1.ResultsService.Results;
 import discord4j.core.event.domain.interaction.ChatInputInteractionEvent;
 import discord4j.core.spec.EmbedCreateFields;
 import discord4j.core.spec.EmbedCreateSpec;
@@ -14,16 +16,16 @@ import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
 @Component
-public class ResultsSubcommand extends Subcommand<F1Command> {
+public class RaceResultsSubcommand extends Subcommand<ResultsSubcommandGroup> {
   private final ResultsService service;
 
-  public ResultsSubcommand(ResultsService service) {
+  public RaceResultsSubcommand(ResultsService service) {
     this.service = service;
   }
 
   @Override
   public String getCommandName() {
-    return "results";
+    return "race";
   }
 
   @Override
@@ -35,16 +37,23 @@ public class ResultsSubcommand extends Subcommand<F1Command> {
   public Mono<Void> handle(ChatInputInteractionEvent event) {
     return service
         .getLastRaceResults()
-        .flatMap(results -> event.reply().withEmbeds(toEmbedCreateSpec(results)))
-        .switchIfEmpty(event.reply("Data not available yet!"));
+        .map(this::toEmbedCreateSpec)
+        .switchIfEmpty(
+            Mono.just(
+                EmbedCreateSpec.create()
+                    .withColor(COLOR)
+                    .withTitle("Data Unavailable")
+                    .withDescription("Check back later!")))
+        .flatMap(event.reply()::withEmbeds);
   }
 
-  private EmbedCreateSpec toEmbedCreateSpec(RaceResults raceResults) {
+  private EmbedCreateSpec toEmbedCreateSpec(Results raceResults) {
     List<Result> results = raceResults.results();
     return EmbedCreateSpec.create()
         .withColor(Color.of(225, 6, 0))
-        .withTitle(raceResults.raceName() + " Results")
-        .withFields(results.stream().map(ResultsSubcommand::toField).toList());
+        .withTitle("Race Results")
+        .withDescription(raceResults.raceName())
+        .withFields(results.stream().map(RaceResultsSubcommand::toField).toList());
   }
 
   private static EmbedCreateFields.Field toField(Result result) {

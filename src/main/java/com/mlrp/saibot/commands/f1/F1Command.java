@@ -1,29 +1,20 @@
 package com.mlrp.saibot.commands.f1;
 
-import static discord4j.core.object.command.ApplicationCommandOption.Type.SUB_COMMAND;
-import static java.util.function.UnaryOperator.identity;
-
 import com.mlrp.saibot.commands.SlashCommand;
 import com.mlrp.saibot.commands.Subcommand;
 import discord4j.core.event.domain.interaction.ChatInputInteractionEvent;
-import discord4j.core.object.command.ApplicationCommandInteractionOption;
-import discord4j.discordjson.json.ApplicationCommandOptionData;
-import discord4j.discordjson.json.ApplicationCommandRequest;
+import discord4j.core.spec.EmbedCreateSpec;
+import discord4j.rest.util.Color;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 import org.springframework.stereotype.Component;
-import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 @Component
 public class F1Command extends SlashCommand {
-
-  private final Map<String, Subcommand<F1Command>> subcommands;
+  public static final Color COLOR = Color.of(225, 6, 0);
 
   public F1Command(List<Subcommand<F1Command>> subcommands) {
-    this.subcommands =
-        subcommands.stream().collect(Collectors.toMap(Subcommand::getCommandName, identity()));
+    super(subcommands);
   }
 
   @Override
@@ -37,31 +28,16 @@ public class F1Command extends SlashCommand {
   }
 
   @Override
-  public ApplicationCommandRequest getCommandRequest() {
-    return ApplicationCommandRequest.builder()
-        .name(getCommandName())
-        .description(getDescription())
-        .addAllOptions(
-            subcommands.values().stream()
-                .map(
-                    subcommand ->
-                        ApplicationCommandOptionData.builder()
-                            .name(subcommand.getCommandName())
-                            .description(subcommand.getDescription())
-                            .type(SUB_COMMAND.getValue())
-                            .build())
-                .map(ApplicationCommandOptionData.class::cast)
-                .toList())
-        .build();
-  }
-
-  @Override
   public Mono<Void> handle(ChatInputInteractionEvent event) {
-    return Flux.fromIterable(event.getOptions())
-        .map(ApplicationCommandInteractionOption::getName)
-        .singleOrEmpty()
-        .filter(subcommands::containsKey)
-        .mapNotNull(subcommands::get)
-        .flatMap(subcommand -> subcommand.handle(event));
+    return super.handle(event)
+        .onErrorResume(
+            throwable ->
+                event
+                    .reply()
+                    .withEmbeds(
+                        EmbedCreateSpec.create()
+                            .withColor(Color.of(225, 6, 0))
+                            .withTitle("Ergast API Offline")
+                            .withDescription("Please check again later!")));
   }
 }

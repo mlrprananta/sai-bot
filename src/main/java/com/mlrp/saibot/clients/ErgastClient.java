@@ -16,53 +16,40 @@ public class ErgastClient {
   }
 
   public Mono<RaceTable> fetchRaceTable() {
-    return client
-        .get()
-        .uri(uriBuilder -> uriBuilder.path("/current.json").build())
-        .retrieve()
-        .bodyToMono(Response.class)
-        .transform(this::getRaceTable)
-        .cache();
+    return getResponse("/current.json").transform(this::getRaceTable);
   }
 
   public Mono<Race> fetchLastQualifyingResults() {
-    return client
-        .get()
-        .uri(uriBuilder -> uriBuilder.path("/current/last/qualifying.json").build())
-        .retrieve()
-        .bodyToMono(Response.class)
+    return getResponse("/current/last/qualifying.json")
         .transform(this::getRace)
         .cache(Duration.ofHours(1));
   }
 
   public Mono<Race> fetchQualifyingResults(int round) {
-    return client
-        .get()
-        .uri(uriBuilder -> uriBuilder.path("/current/" + round + "/qualifying.json").build())
-        .retrieve()
-        .bodyToMono(Response.class)
+    return getResponse("/current/" + round + "/qualifying.json")
         .transform(this::getRace)
         .cache(Duration.ofHours(1));
   }
 
   public Mono<Race> fetchLastRaceResults() {
-    return client
-        .get()
-        .uri(uriBuilder -> uriBuilder.path("/current/last/results.json").build())
-        .retrieve()
-        .bodyToMono(Response.class)
+    return getResponse("/current/last/results.json")
         .transform(this::getRace)
         .cache(Duration.ofHours(1));
   }
 
   public Mono<Race> fetchRaceResults(int round) {
-    return client
-        .get()
-        .uri(uriBuilder -> uriBuilder.path("/current/" + round + "/qualifying.json").build())
-        .retrieve()
-        .bodyToMono(Response.class)
+    return getResponse("/current/" + round + "/qualifying.json")
         .transform(this::getRace)
         .cache(Duration.ofHours(1));
+  }
+
+  private Mono<Response> getResponse(String path) {
+    return client
+        .get()
+        .uri(uriBuilder -> uriBuilder.path(path).build())
+        .retrieve()
+        .bodyToMono(Response.class)
+        .timeout(Duration.ofSeconds(1));
   }
 
   private Mono<RaceTable> getRaceTable(Mono<Response> response) {

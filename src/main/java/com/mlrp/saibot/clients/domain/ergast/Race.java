@@ -15,7 +15,7 @@ public record Race(
     @JsonProperty("Circuit") Circuit circuit,
     String date,
     String time,
-    @JsonProperty("QualifyingResults") Optional<QualifyingResults> qualifyingResults,
+    @JsonProperty("QualifyingResults") Optional<List<QualifyingResult>> qualifyingResults,
     @JsonProperty("Results") Optional<List<Result>> results,
     @JsonProperty("FirstPractice") Optional<Session> freePractice1,
     @JsonProperty("SecondPractice") Optional<Session> freePractice2,

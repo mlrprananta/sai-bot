@@ -62,7 +62,7 @@ public class RaceResultsSubcommand extends Subcommand<ResultsSubcommandGroup> {
 
   private static String getTitle(Result result) {
     return String.format(
-        "`%-2s %-16s %12s `",
+        "`%-2s %-16s %12s`",
         result.position(),
         String.format(
             "%s %s",

@@ -61,6 +61,6 @@ public class QualifyingResultsSubcommand extends Subcommand<ResultsSubcommandGro
 
   private static String getTitle(QualifyingResult result) {
     return String.format(
-        "`%-2s %-16s %12s `", result.position(), result.familyName(), result.getTime());
+        "`%-2s %-16s %12s`", result.position(), result.familyName(), result.getTime());
   }
 }

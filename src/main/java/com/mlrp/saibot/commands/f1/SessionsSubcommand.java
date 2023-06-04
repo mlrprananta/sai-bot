@@ -1,5 +1,6 @@
 package com.mlrp.saibot.commands.f1;
 
+import static com.mlrp.saibot.commands.f1.F1Command.COLOR;
 import static com.mlrp.saibot.services.f1.ScheduleService.getSessions;
 
 import com.mlrp.saibot.clients.domain.ergast.Race;
@@ -10,7 +11,6 @@ import discord4j.core.object.component.ActionRow;
 import discord4j.core.object.component.Button;
 import discord4j.core.spec.EmbedCreateFields;
 import discord4j.core.spec.EmbedCreateSpec;
-import discord4j.rest.util.Color;
 import java.time.Clock;
 import java.time.Instant;
 import org.springframework.stereotype.Component;
@@ -18,7 +18,6 @@ import reactor.core.publisher.Mono;
 
 @Component
 public class SessionsSubcommand extends Subcommand<F1Command> {
-  public static final Color COLOR = Color.of(225, 6, 0);
   private final ScheduleService sessionsService;
   private final Clock clock;
 

@@ -37,9 +37,28 @@ public class ScheduleService {
         .next();
   }
 
+  public Mono<Race> getLastRace() {
+    return raceTable
+        .flatMapIterable(RaceTable::races)
+        .filter(r -> r.getInstant().isBefore(clock.instant()))
+        .last();
+  }
+
+  public Mono<Session> getLastQualifyingSession() {
+    return raceTable
+        .flatMapIterable(RaceTable::races)
+        .filter(race -> race.qualifying().isPresent())
+        .filter(race -> race.qualifying().orElseThrow().getInstant().isBefore(clock.instant()))
+        .last()
+        .map(
+            race ->
+                new Session(
+                    race.raceName(), race.round(), race.qualifying().orElseThrow().getInstant()));
+  }
+
   public static List<Session> getSessions(Race race) {
     return race.getSessions().entrySet().stream()
-        .map(entry -> new Session(entry.getKey(), entry.getValue()))
+        .map(entry -> new Session(entry.getKey(), race.round(), entry.getValue()))
         .sorted(Comparator.comparing(Session::instant))
         .toList();
   }
@@ -51,5 +70,5 @@ public class ScheduleService {
         .orElseThrow();
   }
 
-  public record Session(String name, Instant instant) {}
+  public record Session(String name, int round, Instant instant) {}
 }

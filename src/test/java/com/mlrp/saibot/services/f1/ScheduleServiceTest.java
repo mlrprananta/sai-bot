@@ -1,4 +1,4 @@
-package com.mlrp.saibot.services;
+package com.mlrp.saibot.services.f1;
 
 import static java.time.ZoneOffset.UTC;
 import static org.mockito.Mockito.mock;
@@ -20,7 +20,7 @@ import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 @SpringBootTest(classes = JacksonAutoConfiguration.class)
-class Formula1ScheduleServiceTest {
+class ScheduleServiceTest {
   @Autowired private ObjectMapper mapper;
 
   @Test
@@ -31,7 +31,7 @@ class Formula1ScheduleServiceTest {
     Race expectedRace = response.MRData().raceTable().races().get(5);
     Clock clock = Clock.fixed(expectedRace.getInstant().minus(1, ChronoUnit.DAYS), UTC);
     when(client.fetchRaceTable()).thenReturn(Mono.just(response.MRData().raceTable()));
-    new Formula1ScheduleService(client, clock)
+    new ScheduleService(client, clock)
         .getCurrentRace()
         .as(StepVerifier::create)
         .expectNext(expectedRace)

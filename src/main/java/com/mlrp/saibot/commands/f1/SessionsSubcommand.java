@@ -1,14 +1,14 @@
-package com.mlrp.saibot.commands.formula1;
+package com.mlrp.saibot.commands.f1;
 
-import static com.mlrp.saibot.services.Formula1ScheduleService.getSessions;
+import static com.mlrp.saibot.services.f1.ScheduleService.getSessions;
 
 import com.mlrp.saibot.clients.domain.ergast.Race;
 import com.mlrp.saibot.commands.Subcommand;
-import com.mlrp.saibot.services.Formula1ScheduleService;
+import com.mlrp.saibot.services.f1.ScheduleService;
 import discord4j.core.event.domain.interaction.ChatInputInteractionEvent;
 import discord4j.core.object.component.ActionRow;
 import discord4j.core.object.component.Button;
-import discord4j.core.spec.EmbedCreateFields.Field;
+import discord4j.core.spec.EmbedCreateFields;
 import discord4j.core.spec.EmbedCreateSpec;
 import discord4j.rest.util.Color;
 import java.time.Clock;
@@ -17,24 +17,24 @@ import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
 @Component
-public class Formula1NextSubcommand extends Subcommand<Formula1Command> {
+public class SessionsSubcommand extends Subcommand<F1Command> {
   public static final Color COLOR = Color.of(225, 6, 0);
-  private final Formula1ScheduleService sessionsService;
+  private final ScheduleService sessionsService;
   private final Clock clock;
 
-  public Formula1NextSubcommand(Formula1ScheduleService sessionsService, Clock clock) {
+  public SessionsSubcommand(ScheduleService sessionsService, Clock clock) {
     this.sessionsService = sessionsService;
     this.clock = clock;
   }
 
   @Override
   public String getCommandName() {
-    return "next";
+    return "sessions";
   }
 
   @Override
   public String getDescription() {
-    return "Get info on the next F1 sessions.";
+    return "Get info on upcoming F1 sessions.";
   }
 
   @Override
@@ -57,10 +57,9 @@ public class Formula1NextSubcommand extends Subcommand<Formula1Command> {
         .withColor(COLOR)
         .withFields(
             getSessions(race).stream()
-                .filter(session -> session.instant().isAfter(now))
                 .map(
                     session ->
-                        Field.of(
+                        EmbedCreateFields.Field.of(
                             session.name(),
                             "<t:%s:R>".formatted(session.instant().getEpochSecond()),
                             false))

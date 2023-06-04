@@ -1,3 +1,5 @@
 package com.mlrp.saibot.clients.domain.ergast;
 
-public record Results() {}
+import java.util.List;
+
+public record Results(List<Result> results) {}

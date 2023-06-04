@@ -36,7 +36,7 @@ public class F1Command extends SlashCommand {
                     .reply()
                     .withEmbeds(
                         EmbedCreateSpec.create()
-                            .withColor(Color.of(225, 6, 0))
+                            .withColor(COLOR)
                             .withTitle("Ergast API Offline")
                             .withDescription("Please check again later!")));
   }

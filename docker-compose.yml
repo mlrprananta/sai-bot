@@ -2,6 +2,6 @@ services:
   saibot:
     build: .
     environment:
-      TOKEN: ${BOT_TOKEN}
-      WEATHER_API_KEY: ${OWM_API_KEY}
+      BOT_TOKEN: ${BOT_TOKEN}
+      OWM_API_KEY: ${OWM_API_KEY}
 

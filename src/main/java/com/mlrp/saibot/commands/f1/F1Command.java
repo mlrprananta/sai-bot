@@ -1,4 +1,4 @@
-package com.mlrp.saibot.commands.formula1;
+package com.mlrp.saibot.commands.f1;
 
 import static discord4j.core.object.command.ApplicationCommandOption.Type.SUB_COMMAND;
 import static java.util.function.UnaryOperator.identity;
@@ -17,11 +17,11 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 @Component
-public class Formula1Command extends SlashCommand {
+public class F1Command extends SlashCommand {
 
-  private final Map<String, Subcommand<Formula1Command>> subcommands;
+  private final Map<String, Subcommand<F1Command>> subcommands;
 
-  public Formula1Command(List<Subcommand<Formula1Command>> subcommands) {
+  public F1Command(List<Subcommand<F1Command>> subcommands) {
     this.subcommands =
         subcommands.stream().collect(Collectors.toMap(Subcommand::getCommandName, identity()));
   }

@@ -36,7 +36,7 @@ final class ChatInputInteractionEventHandler implements EventHandler<ChatInputIn
                 LOGGER.info(
                     "'{}' command was performed by '{}'.",
                     command.getCommandName(),
-                    member.orElseThrow().getDisplayName()))
+                    member.map(Member::getDisplayName).orElse("Bot")))
         .flatMap(c -> c.handle(event))
         .doOnError(t -> LOGGER.error("Command failed.", t))
         .onErrorComplete()

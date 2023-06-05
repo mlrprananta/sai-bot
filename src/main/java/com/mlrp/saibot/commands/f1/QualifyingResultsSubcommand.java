@@ -9,7 +9,6 @@ import com.mlrp.saibot.services.f1.ResultsService.QualifyingResults;
 import discord4j.core.event.domain.interaction.ChatInputInteractionEvent;
 import discord4j.core.spec.EmbedCreateFields;
 import discord4j.core.spec.EmbedCreateSpec;
-import discord4j.rest.util.Color;
 import java.util.List;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
@@ -48,11 +47,11 @@ public class QualifyingResultsSubcommand extends Subcommand<ResultsSubcommandGro
 
   private EmbedCreateSpec toEmbedCreateSpec(QualifyingResults qualifyingResults) {
     List<QualifyingResult> results = qualifyingResults.results();
-    return EmbedCreateSpec.create()
-        .withColor(Color.of(225, 6, 0))
-        .withTitle("Qualifying Results")
-        .withDescription(qualifyingResults.raceName())
-        .withFields(results.stream().map(QualifyingResultsSubcommand::toField).toList());
+    return EmbedCreateSpec.builder()
+        .color(COLOR)
+        .addField(qualifyingResults.raceName() + " - Qualifying", "", false)
+        .addAllFields(results.stream().map(QualifyingResultsSubcommand::toField).toList())
+        .build();
   }
 
   private static EmbedCreateFields.Field toField(QualifyingResult result) {

@@ -16,30 +16,42 @@ public class ErgastClient {
   }
 
   public Mono<RaceTable> fetchRaceTable() {
-    return getResponse("/current.json").transform(this::getRaceTable);
+    return getResponse("/current.json").transform(ErgastClient::getRaceTable);
   }
 
   public Mono<Race> fetchLastQualifyingResults() {
     return getResponse("/current/last/qualifying.json")
-        .transform(this::getRace)
+        .transform(ErgastClient::getRace)
         .cache(Duration.ofHours(1));
   }
 
   public Mono<Race> fetchQualifyingResults(int round) {
     return getResponse("/current/" + round + "/qualifying.json")
-        .transform(this::getRace)
+        .transform(ErgastClient::getRace)
         .cache(Duration.ofHours(1));
   }
 
   public Mono<Race> fetchLastRaceResults() {
     return getResponse("/current/last/results.json")
-        .transform(this::getRace)
+        .transform(ErgastClient::getRace)
         .cache(Duration.ofHours(1));
   }
 
   public Mono<Race> fetchRaceResults(int round) {
     return getResponse("/current/" + round + "/qualifying.json")
-        .transform(this::getRace)
+        .transform(ErgastClient::getRace)
+        .cache(Duration.ofHours(1));
+  }
+
+  public Mono<StandingsList> fetchDriverStandings() {
+    return getResponse("/current/driverStandings.json")
+        .transform(ErgastClient::getStandingList)
+        .cache(Duration.ofHours(1));
+  }
+
+  public Mono<StandingsList> fetchConstructorStandings() {
+    return getResponse("/current/constructorStandings.json")
+        .transform(ErgastClient::getStandingList)
         .cache(Duration.ofHours(1));
   }
 
@@ -52,11 +64,18 @@ public class ErgastClient {
         .timeout(Duration.ofSeconds(1));
   }
 
-  private Mono<RaceTable> getRaceTable(Mono<Response> response) {
+  private static Mono<StandingsList> getStandingList(Mono<Response> response) {
+    return response
+        .map(Response::MRData)
+        .flatMapIterable(data -> data.standingsTable().standingsLists())
+        .next();
+  }
+
+  private static Mono<RaceTable> getRaceTable(Mono<Response> response) {
     return response.map(Response::MRData).map(MRData::raceTable);
   }
 
-  private Mono<Race> getRace(Mono<Response> response) {
+  private static Mono<Race> getRace(Mono<Response> response) {
     return getRaceTable(response).flatMapIterable(RaceTable::races).next();
   }
 }

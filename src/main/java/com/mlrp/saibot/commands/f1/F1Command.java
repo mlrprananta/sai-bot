@@ -31,7 +31,9 @@ public class F1Command extends SlashCommand {
 
   @Override
   public Mono<Void> handle(ChatInputInteractionEvent event) {
-    return super.handle(event).onErrorResume(throwable -> handleError(event, throwable));
+    return super.handle(event)
+        .doOnError(t -> LOGGER.error("F1 command failed.", t))
+        .onErrorResume(throwable -> handleError(event, throwable));
   }
 
   private static InteractionApplicationCommandCallbackReplyMono handleError(

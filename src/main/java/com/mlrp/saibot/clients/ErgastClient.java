@@ -61,7 +61,7 @@ public class ErgastClient {
         .uri(uriBuilder -> uriBuilder.path(path).build())
         .retrieve()
         .bodyToMono(Response.class)
-        .timeout(Duration.ofSeconds(1));
+        .timeout(Duration.ofSeconds(2));
   }
 
   private static Mono<StandingsList> getStandingList(Mono<Response> response) {

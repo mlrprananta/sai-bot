@@ -60,7 +60,7 @@ public class SessionsSubcommand extends Subcommand<F1Command> {
                     session ->
                         EmbedCreateFields.Field.of(
                             session.name(),
-                            "<t:%s:R>".formatted(session.instant().getEpochSecond()),
+                            "<t:%s>".formatted(session.instant().getEpochSecond()),
                             false))
                 .toList());
   }

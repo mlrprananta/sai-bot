@@ -1,6 +1,7 @@
 package com.mlrp.saibot.handlers;
 
 import com.mlrp.saibot.commands.SlashCommand;
+import discord4j.core.GatewayDiscordClient;
 import discord4j.core.event.domain.interaction.ChatInputInteractionEvent;
 import discord4j.core.object.entity.Member;
 import java.util.List;
@@ -12,18 +13,14 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 @Component
-final class ChatInputInteractionEventHandler implements EventHandler<ChatInputInteractionEvent> {
+final class ChatInputInteractionEventHandler extends BaseEventHandler<ChatInputInteractionEvent> {
   private static final Logger LOGGER =
       LoggerFactory.getLogger(ChatInputInteractionEventHandler.class);
   private final List<SlashCommand> commands;
 
-  public ChatInputInteractionEventHandler(List<SlashCommand> commands) {
-    this.commands = commands;
-  }
-
-  @Override
-  public Class<ChatInputInteractionEvent> getEventType() {
-    return ChatInputInteractionEvent.class;
+  public ChatInputInteractionEventHandler(GatewayDiscordClient gatewayClient, List<SlashCommand> commands) {
+      super(gatewayClient, ChatInputInteractionEvent.class);
+      this.commands = commands;
   }
 
   @Override

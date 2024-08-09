@@ -2,6 +2,7 @@ package com.mlrp.saibot.handlers;
 
 import static java.util.function.Predicate.not;
 
+import discord4j.core.GatewayDiscordClient;
 import discord4j.core.event.domain.message.MessageCreateEvent;
 import discord4j.core.object.entity.User;
 import org.slf4j.Logger;
@@ -10,14 +11,11 @@ import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
 @Component
-public class MessageCreateEventHandler implements EventHandler<MessageCreateEvent> {
+public class MessageCreateEventHandler extends BaseEventHandler<MessageCreateEvent> {
   private static final Logger LOGGER = LoggerFactory.getLogger(MessageCreateEventHandler.class);
 
-  public MessageCreateEventHandler() {}
-
-  @Override
-  public Class<MessageCreateEvent> getEventType() {
-    return MessageCreateEvent.class;
+  public MessageCreateEventHandler(GatewayDiscordClient gatewayDiscordClient) {
+      super(gatewayDiscordClient, MessageCreateEvent.class);
   }
 
   @Override

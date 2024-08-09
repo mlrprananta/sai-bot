@@ -10,11 +10,11 @@
 		<!-- lookup parent from repository -->
 	</parent>
 
-	<groupId>com.mlrp</groupId>
-	<artifactId>saibot</artifactId>
+	<groupId>com.mlrprananta</groupId>
+	<artifactId>snapp</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 
-	<name>sai-bot</name>
+	<name>snapp</name>
 	<description>My personal Discord app.</description>
 
 	<properties>

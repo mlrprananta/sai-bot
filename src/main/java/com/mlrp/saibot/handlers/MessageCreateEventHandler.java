@@ -15,7 +15,7 @@ public class MessageCreateEventHandler extends BaseEventHandler<MessageCreateEve
   private static final Logger LOGGER = LoggerFactory.getLogger(MessageCreateEventHandler.class);
 
   public MessageCreateEventHandler(GatewayDiscordClient gatewayDiscordClient) {
-      super(gatewayDiscordClient, MessageCreateEvent.class);
+    super(gatewayDiscordClient, MessageCreateEvent.class);
   }
 
   @Override

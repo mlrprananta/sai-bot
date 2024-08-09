@@ -18,9 +18,10 @@ final class ChatInputInteractionEventHandler extends BaseEventHandler<ChatInputI
       LoggerFactory.getLogger(ChatInputInteractionEventHandler.class);
   private final List<SlashCommand> commands;
 
-  public ChatInputInteractionEventHandler(GatewayDiscordClient gatewayClient, List<SlashCommand> commands) {
-      super(gatewayClient, ChatInputInteractionEvent.class);
-      this.commands = commands;
+  public ChatInputInteractionEventHandler(
+      GatewayDiscordClient gatewayClient, List<SlashCommand> commands) {
+    super(gatewayClient, ChatInputInteractionEvent.class);
+    this.commands = commands;
   }
 
   @Override

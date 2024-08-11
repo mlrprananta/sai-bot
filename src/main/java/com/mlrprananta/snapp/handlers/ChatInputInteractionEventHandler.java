@@ -26,23 +26,10 @@ final class ChatInputInteractionEventHandler extends BaseEventHandler<ChatInputI
   public Mono<Void> handle(ChatInputInteractionEvent event) {
     return Flux.fromIterable(commands)
         .filter(command -> event.getCommandName().equals(command.getCommandName()))
-        .doOnNext(command -> logInteraction(event, command))
         .flatMap(c -> c.handle(event))
         .doOnError(ChatInputInteractionEventHandler::logError)
         .onErrorComplete()
         .then();
-  }
-
-  private static void logInteraction(ChatInputInteractionEvent event, SlashCommand command) {
-    event
-        .getInteraction()
-        .getMember()
-        .ifPresent(
-            member ->
-                LOGGER.info(
-                    "'{}' command was performed by '{}'.",
-                    command.getCommandName(),
-                    member.getDisplayName()));
   }
 
   private static void logError(Throwable t) {

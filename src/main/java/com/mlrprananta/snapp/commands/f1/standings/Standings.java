@@ -1,24 +1,25 @@
-package com.mlrprananta.snapp.commands.f1;
+package com.mlrprananta.snapp.commands.f1.standings;
 
 import com.mlrprananta.snapp.commands.Subcommand;
 import com.mlrprananta.snapp.commands.SubcommandGroup;
+import com.mlrprananta.snapp.commands.f1.BaseCommand;
 import java.util.List;
 import org.springframework.stereotype.Component;
 
 @Component
-public class ResultsSubcommandGroup extends SubcommandGroup<F1Command> {
+public class Standings extends SubcommandGroup<BaseCommand> {
 
-  public ResultsSubcommandGroup(List<Subcommand<ResultsSubcommandGroup>> subcommands) {
+  public Standings(List<Subcommand<Standings>> subcommands) {
     super(subcommands);
   }
 
   @Override
   public String getCommandName() {
-    return "results";
+    return "standings";
   }
 
   @Override
   public String getDescription() {
-    return "Get various F1 results";
+    return "Get the standings for the current season!";
   }
 }

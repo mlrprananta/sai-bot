@@ -16,30 +16,30 @@ public class ErgastClient {
   }
 
   public Mono<RaceTable> fetchRaceTable() {
-    return getResponse("/current.json").transform(ErgastClient::getRaceTable);
+    return getResponse("/current.json").transform(ErgastClient::toRaceTable);
   }
 
   public Mono<Race> fetchLastQualifyingResults() {
     return getResponse("/current/last/qualifying.json")
-        .transform(ErgastClient::getRace)
+        .transform(ErgastClient::getNextRace)
         .cache(Duration.ofHours(1));
   }
 
   public Mono<Race> fetchQualifyingResults(int round) {
     return getResponse("/current/" + round + "/qualifying.json")
-        .transform(ErgastClient::getRace)
+        .transform(ErgastClient::getNextRace)
         .cache(Duration.ofHours(1));
   }
 
   public Mono<Race> fetchLastRaceResults() {
     return getResponse("/current/last/results.json")
-        .transform(ErgastClient::getRace)
+        .transform(ErgastClient::getNextRace)
         .cache(Duration.ofHours(1));
   }
 
   public Mono<Race> fetchRaceResults(int round) {
     return getResponse("/current/" + round + "/qualifying.json")
-        .transform(ErgastClient::getRace)
+        .transform(ErgastClient::getNextRace)
         .cache(Duration.ofHours(1));
   }
 
@@ -60,8 +60,7 @@ public class ErgastClient {
         .get()
         .uri(uriBuilder -> uriBuilder.path(path).build())
         .retrieve()
-        .bodyToMono(Response.class)
-        .timeout(Duration.ofSeconds(2));
+        .bodyToMono(Response.class);
   }
 
   private static Mono<StandingsList> getStandingList(Mono<Response> response) {
@@ -71,11 +70,11 @@ public class ErgastClient {
         .next();
   }
 
-  private static Mono<RaceTable> getRaceTable(Mono<Response> response) {
+  private static Mono<RaceTable> toRaceTable(Mono<Response> response) {
     return response.map(Response::MRData).map(MRData::raceTable);
   }
 
-  private static Mono<Race> getRace(Mono<Response> response) {
-    return getRaceTable(response).flatMapIterable(RaceTable::races).next();
+  private static Mono<Race> getNextRace(Mono<Response> response) {
+    return toRaceTable(response).flatMapIterable(RaceTable::races).next();
   }
 }

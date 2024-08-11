@@ -1,10 +1,11 @@
-package com.mlrprananta.snapp.commands;
+package com.mlrprananta.snapp.commands.weather;
 
 import static discord4j.core.object.command.ApplicationCommandOption.Type.STRING;
 
 import com.mlrprananta.snapp.clients.OpenWeatherClient;
 import com.mlrprananta.snapp.clients.domain.owm.ResponseWeather;
 import com.mlrprananta.snapp.clients.domain.owm.Summary;
+import com.mlrprananta.snapp.commands.SlashCommand;
 import discord4j.core.event.domain.interaction.ChatInputInteractionEvent;
 import discord4j.core.object.command.ApplicationCommandInteractionOption;
 import discord4j.core.object.command.ApplicationCommandInteractionOptionValue;

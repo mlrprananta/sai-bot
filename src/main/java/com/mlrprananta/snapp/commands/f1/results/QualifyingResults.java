@@ -1,11 +1,10 @@
-package com.mlrprananta.snapp.commands.f1;
+package com.mlrprananta.snapp.commands.f1.results;
 
-import static com.mlrprananta.snapp.commands.f1.F1Command.COLOR;
+import static com.mlrprananta.snapp.commands.f1.BaseCommand.COLOR;
 import static com.mlrprananta.snapp.services.f1.ResultsService.QualifyingSession.Q1;
 
 import com.mlrprananta.snapp.commands.Subcommand;
 import com.mlrprananta.snapp.services.f1.ResultsService;
-import com.mlrprananta.snapp.services.f1.ResultsService.QualifyingResults;
 import com.mlrprananta.snapp.services.f1.ResultsService.QualifyingSessionResult;
 import discord4j.common.util.Snowflake;
 import discord4j.core.GatewayDiscordClient;
@@ -15,6 +14,7 @@ import discord4j.core.object.component.ActionRow;
 import discord4j.core.object.component.SelectMenu;
 import discord4j.core.spec.EmbedCreateFields;
 import discord4j.core.spec.EmbedCreateSpec;
+import discord4j.core.spec.InteractionFollowupCreateSpec;
 import java.time.Duration;
 import java.util.List;
 import java.util.concurrent.TimeoutException;
@@ -25,10 +25,10 @@ import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
 @Component
-public class QualifyingResultsSubcommand extends Subcommand<ResultsSubcommandGroup> {
+public class QualifyingResults extends Subcommand<Results> {
   private final ResultsService service;
 
-  public QualifyingResultsSubcommand(ResultsService service) {
+  public QualifyingResults(ResultsService service) {
     this.service = service;
   }
 
@@ -52,44 +52,55 @@ public class QualifyingResultsSubcommand extends Subcommand<ResultsSubcommandGro
 
   @Override
   public Mono<Void> handle(ChatInputInteractionEvent event) {
-    return service
-        .getLastQualifyingResults()
+    return event
+        .deferReply()
+        .then(service.getLastQualifyingResults())
         .flatMap(
-            qualifyingResults ->
+            results ->
                 event
-                    .reply()
-                    .withEmbeds(toEmbedCreateSpec(qualifyingResults, Q1))
-                    .withComponents(ActionRow.of(SELECT_MENU))
-                    .then(event.getReply())
-                    .flatMapMany(
-                        message -> listen(event.getClient(), qualifyingResults, message.getId()))
+                    .createFollowup(toInteractionFollowup(results))
+                    .flatMapMany(message -> listen(event.getClient(), results, message.getId()))
                     .onErrorResume(TimeoutException.class, __ -> event.deleteReply())
                     .then());
   }
 
+  private InteractionFollowupCreateSpec toInteractionFollowup(ResultsService.QualifyingResults q) {
+    return InteractionFollowupCreateSpec.builder()
+        .addComponent(ActionRow.of(SELECT_MENU))
+        .addEmbed(toEmbed(q, Q1))
+        .build();
+  }
+
   private Flux<Void> listen(
-      GatewayDiscordClient client, QualifyingResults qualifyingResults, Snowflake messageId) {
+      GatewayDiscordClient client,
+      ResultsService.QualifyingResults qualifyingResults,
+      Snowflake messageId) {
     return client
         .on(SelectMenuInteractionEvent.class)
         .publishOn(Schedulers.boundedElastic())
         .filter(event -> event.getMessageId().equals(messageId))
         .filter(event -> event.getCustomId().equals(QUALIFYING_SELECT_MENU_ID))
-        .flatMap(event -> handle(event, qualifyingResults))
+        .flatMap(event -> handle(event, qualifyingResults, messageId))
         .timeout(Duration.ofMinutes(5));
   }
 
-  private Mono<Void> handle(SelectMenuInteractionEvent event, QualifyingResults qualifyingResults) {
-    return Flux.fromIterable(event.getValues())
+  private Mono<Void> handle(
+      SelectMenuInteractionEvent event,
+      ResultsService.QualifyingResults qualifyingResults,
+      Snowflake messageId) {
+    return event
+        .deferEdit()
+        .thenMany(Flux.fromIterable(event.getValues()))
         .next()
         .map(ResultsService.QualifyingSession::valueOf)
-        .map(qualifyingSession -> toEmbedCreateSpec(qualifyingResults, qualifyingSession))
-        .flatMap(
-            embedCreateSpec ->
-                event.edit().withEmbeds(embedCreateSpec).withComponents(ActionRow.of(SELECT_MENU)));
+        .map(qualifyingSession -> toEmbed(qualifyingResults, qualifyingSession))
+        .flatMap(embed -> event.editFollowup(messageId).withEmbeds(embed))
+        .then();
   }
 
-  private EmbedCreateSpec toEmbedCreateSpec(
-      QualifyingResults qualifyingResults, ResultsService.QualifyingSession qualifyingSession) {
+  private EmbedCreateSpec toEmbed(
+      ResultsService.QualifyingResults qualifyingResults,
+      ResultsService.QualifyingSession qualifyingSession) {
     List<QualifyingSessionResult> results =
         qualifyingResults.getQualifyingSessionResults(qualifyingSession);
     QualifyingSessionResult pole = results.get(0);

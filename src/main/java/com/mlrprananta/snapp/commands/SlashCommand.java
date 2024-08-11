@@ -38,6 +38,20 @@ public abstract class SlashCommand extends AbstractCommand {
         .singleOrEmpty()
         .filter(subcommands::containsKey)
         .mapNotNull(subcommands::get)
+        .doOnNext(subcommand -> logInteraction(event, subcommand))
         .flatMap(subcommand -> subcommand.handle(event));
+  }
+
+  private void logInteraction(ChatInputInteractionEvent event, AbstractCommand command) {
+    event
+        .getInteraction()
+        .getMember()
+        .ifPresent(
+            member ->
+                LOGGER.info(
+                    "'{} {}' command was invoked by '{}'.",
+                    this.getCommandName(),
+                    command.getCommandName(),
+                    member.getDisplayName()));
   }
 }

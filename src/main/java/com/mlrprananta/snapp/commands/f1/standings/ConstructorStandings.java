@@ -1,6 +1,6 @@
-package com.mlrprananta.snapp.commands.f1;
+package com.mlrprananta.snapp.commands.f1.standings;
 
-import static com.mlrprananta.snapp.commands.f1.F1Command.COLOR;
+import static com.mlrprananta.snapp.commands.f1.BaseCommand.COLOR;
 import static com.mlrprananta.snapp.services.f1.StandingsService.*;
 
 import com.mlrprananta.snapp.commands.Subcommand;
@@ -8,16 +8,17 @@ import com.mlrprananta.snapp.services.f1.StandingsService;
 import discord4j.core.event.domain.interaction.ChatInputInteractionEvent;
 import discord4j.core.spec.EmbedCreateFields;
 import discord4j.core.spec.EmbedCreateSpec;
+import discord4j.core.spec.InteractionFollowupCreateSpec;
 import java.util.List;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
 @Component
-public class ConstructorStandingsSubcommand extends Subcommand<StandingsSubcommandGroup> {
+public class ConstructorStandings extends Subcommand<Standings> {
 
   private final StandingsService service;
 
-  public ConstructorStandingsSubcommand(StandingsService service) {
+  public ConstructorStandings(StandingsService service) {
     this.service = service;
   }
 
@@ -33,24 +34,26 @@ public class ConstructorStandingsSubcommand extends Subcommand<StandingsSubcomma
 
   @Override
   public Mono<Void> handle(ChatInputInteractionEvent event) {
-    return service
-        .getConstructorStandings()
-        .map(this::toEmbedCreateSpec)
-        .switchIfEmpty(
-            Mono.just(
-                EmbedCreateSpec.create()
-                    .withColor(COLOR)
-                    .withTitle("Data Unavailable")
-                    .withDescription("Check back later!")))
-        .flatMap(event.reply()::withEmbeds);
+    return event
+        .deferReply()
+        .then(service.getConstructorStandings())
+        .map(this::toInteractionFollowup)
+        .flatMap(event::createFollowup)
+        .then();
   }
 
-  private EmbedCreateSpec toEmbedCreateSpec(ConstructorStandings constructorStandings) {
+  private InteractionFollowupCreateSpec toInteractionFollowup(
+      StandingsService.ConstructorStandings c) {
+    return InteractionFollowupCreateSpec.builder().addEmbed(toEmbedCreateSpec(c)).build();
+  }
+
+  private EmbedCreateSpec toEmbedCreateSpec(
+      StandingsService.ConstructorStandings constructorStandings) {
     List<ConstructorStanding> standings = constructorStandings.standings();
     return EmbedCreateSpec.builder()
         .color(COLOR)
         .addField("Constructor Standings - " + constructorStandings.season(), "", false)
-        .addAllFields(standings.stream().map(ConstructorStandingsSubcommand::toField).toList())
+        .addAllFields(standings.stream().map(ConstructorStandings::toField).toList())
         .build();
   }
 

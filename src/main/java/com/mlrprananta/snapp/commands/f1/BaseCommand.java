@@ -12,10 +12,10 @@ import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
 @Component
-public class F1Command extends SlashCommand {
+public class BaseCommand extends SlashCommand {
   public static final Color COLOR = Color.of(225, 6, 0);
 
-  public F1Command(List<Subcommand<F1Command>> subcommands) {
+  public BaseCommand(List<Subcommand<BaseCommand>> subcommands) {
     super(subcommands);
   }
 

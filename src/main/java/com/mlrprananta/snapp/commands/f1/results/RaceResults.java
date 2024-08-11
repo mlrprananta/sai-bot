@@ -1,24 +1,24 @@
-package com.mlrprananta.snapp.commands.f1;
+package com.mlrprananta.snapp.commands.f1.results;
 
-import static com.mlrprananta.snapp.commands.f1.F1Command.COLOR;
+import static com.mlrprananta.snapp.commands.f1.BaseCommand.COLOR;
 
 import com.mlrprananta.snapp.clients.domain.ergast.Result;
 import com.mlrprananta.snapp.clients.domain.ergast.Time;
 import com.mlrprananta.snapp.commands.Subcommand;
 import com.mlrprananta.snapp.services.f1.ResultsService;
-import com.mlrprananta.snapp.services.f1.ResultsService.Results;
 import discord4j.core.event.domain.interaction.ChatInputInteractionEvent;
 import discord4j.core.spec.EmbedCreateFields;
 import discord4j.core.spec.EmbedCreateSpec;
+import discord4j.core.spec.InteractionFollowupCreateSpec;
 import java.util.List;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
 @Component
-public class RaceResultsSubcommand extends Subcommand<ResultsSubcommandGroup> {
+public class RaceResults extends Subcommand<Results> {
   private final ResultsService service;
 
-  public RaceResultsSubcommand(ResultsService service) {
+  public RaceResults(ResultsService service) {
     this.service = service;
   }
 
@@ -34,24 +34,24 @@ public class RaceResultsSubcommand extends Subcommand<ResultsSubcommandGroup> {
 
   @Override
   public Mono<Void> handle(ChatInputInteractionEvent event) {
-    return service
-        .getLastRaceResults()
-        .map(this::toEmbedCreateSpec)
-        .switchIfEmpty(
-            Mono.just(
-                EmbedCreateSpec.create()
-                    .withColor(COLOR)
-                    .withTitle("Data Unavailable")
-                    .withDescription("Check back later!")))
-        .flatMap(event.reply()::withEmbeds);
+    return event
+        .deferReply()
+        .then(service.getLastRaceResults())
+        .map(this::toInteractionFollowup)
+        .flatMap(event::createFollowup)
+        .then();
   }
 
-  private EmbedCreateSpec toEmbedCreateSpec(Results raceResults) {
+  private InteractionFollowupCreateSpec toInteractionFollowup(ResultsService.Results results) {
+    return InteractionFollowupCreateSpec.builder().addEmbed(toEmbed(results)).build();
+  }
+
+  private EmbedCreateSpec toEmbed(ResultsService.Results raceResults) {
     List<Result> results = raceResults.results();
     return EmbedCreateSpec.builder()
         .color(COLOR)
         .addField(raceResults.raceName(), "", false)
-        .addAllFields(results.stream().map(RaceResultsSubcommand::toField).toList())
+        .addAllFields(results.stream().map(RaceResults::toField).toList())
         .build();
   }
 

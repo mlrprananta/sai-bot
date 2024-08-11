@@ -3,9 +3,7 @@ package com.mlrprananta.snapp.handlers;
 import com.mlrprananta.snapp.commands.SlashCommand;
 import discord4j.core.GatewayDiscordClient;
 import discord4j.core.event.domain.interaction.ChatInputInteractionEvent;
-import discord4j.core.object.entity.Member;
 import java.util.List;
-import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -26,18 +24,28 @@ final class ChatInputInteractionEventHandler extends BaseEventHandler<ChatInputI
 
   @Override
   public Mono<Void> handle(ChatInputInteractionEvent event) {
-    Optional<Member> member = event.getInteraction().getMember();
     return Flux.fromIterable(commands)
         .filter(command -> event.getCommandName().equals(command.getCommandName()))
-        .doOnNext(
-            command ->
+        .doOnNext(command -> logInteraction(event, command))
+        .flatMap(c -> c.handle(event))
+        .doOnError(ChatInputInteractionEventHandler::logError)
+        .onErrorComplete()
+        .then();
+  }
+
+  private static void logInteraction(ChatInputInteractionEvent event, SlashCommand command) {
+    event
+        .getInteraction()
+        .getMember()
+        .ifPresent(
+            member ->
                 LOGGER.info(
                     "'{}' command was performed by '{}'.",
                     command.getCommandName(),
-                    member.map(Member::getDisplayName).orElse("Bot")))
-        .flatMap(c -> c.handle(event))
-        .doOnError(t -> LOGGER.error("Command failed.", t))
-        .onErrorComplete()
-        .then();
+                    member.getDisplayName()));
+  }
+
+  private static void logError(Throwable t) {
+    LOGGER.error("Command failed.", t);
   }
 }

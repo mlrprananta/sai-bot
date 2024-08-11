@@ -2,7 +2,7 @@ package com.mlrprananta.snapp.commands;
 
 import static discord4j.core.object.command.ApplicationCommandOption.Type.STRING;
 
-import com.mlrprananta.snapp.clients.OWMClient;
+import com.mlrprananta.snapp.clients.OpenWeatherClient;
 import com.mlrprananta.snapp.clients.domain.owm.ResponseWeather;
 import com.mlrprananta.snapp.clients.domain.owm.Summary;
 import discord4j.core.event.domain.interaction.ChatInputInteractionEvent;
@@ -21,9 +21,9 @@ import reactor.core.publisher.Mono;
 public class WeatherCommand extends SlashCommand {
   private static final String LOCATION_OPTION = "location";
   private static final String UNITS_OPTION = "units";
-  private final OWMClient client;
+  private final OpenWeatherClient client;
 
-  public WeatherCommand(OWMClient client) {
+  public WeatherCommand(OpenWeatherClient client) {
     this.client = client;
   }
 

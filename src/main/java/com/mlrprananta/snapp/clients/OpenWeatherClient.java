@@ -8,11 +8,11 @@ import org.springframework.web.util.UriBuilder;
 import reactor.core.publisher.Mono;
 
 @Component
-public class OWMClient {
+public class OpenWeatherClient {
   private final WebClient webClient;
   private final String apiKey;
 
-  public OWMClient(
+  public OpenWeatherClient(
       WebClient.Builder webClientBuilder,
       @Value("${weather.url}") String url,
       @Value("${weather.api-key}") String apiKey) {
